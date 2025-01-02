@@ -16,6 +16,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
     super.initState();
     // Fetch products when the screen initializes
     Provider.of<ProductProvider>(context, listen: false).fetchProducts();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      Provider.of<ProductProvider>(context, listen: false).fetchProducts();
+    });
+
   }
 
   @override
@@ -44,6 +48,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               : RefreshIndicator(
                   onRefresh: productProvider.fetchProducts,
                   child: GridView.builder(
+
                     padding: const EdgeInsets.all(8),
                     itemCount: productProvider.products.length,
                     gridDelegate:
@@ -51,6 +56,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
+                          childAspectRatio: 0.75,
                     ),
                     itemBuilder: (context, index) {
                       final product = productProvider.products[index];

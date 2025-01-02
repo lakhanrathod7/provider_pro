@@ -27,7 +27,7 @@ class ProductCard extends StatelessWidget {
                   const BorderRadius.vertical(top: Radius.circular(4)),
               child: Image.network(
                 product.images.first,
-                height: 80, // Increased image height
+                height: 170, // Increased image height
                 width: double.infinity,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) =>
@@ -53,17 +53,8 @@ class ProductCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  // Price
-                  // Text(
-                  //   '\$${product.price.toStringAsFixed(2)}',
-                  //   style: const TextStyle(
-                  //     fontSize: 16, // Increased font size for price
-                  //     color: Colors.green,
-                  //     fontWeight: FontWeight.w600,
-                  //   ),
-                  // ),
-                  // Rating
+                  const SizedBox(height: 10),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
