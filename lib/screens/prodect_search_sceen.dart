@@ -75,50 +75,89 @@ class _SearchScreenState extends State<SearchScreen> {
         body: productProvider.isLoading
             ? Center(child: CircularProgressIndicator())
             : productProvider.errorMessage.isNotEmpty
-                ? Center(child: Text(productProvider.errorMessage))
-                : _isSearching
-                    ? ListView.builder(
-                        padding: EdgeInsets.all(8),
-                        itemCount: productProvider.products.length,
-                        itemBuilder: (context, index) {
-                          final product = productProvider.products[index];
-                          return ListTile(
-                            leading: product.images.isNotEmpty
-                                ? Image.network(
-                                    product.images[0],
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Icon(Icons.image),
-                            title: Text(product.title),
-                            subtitle: Text('\$${product.price}'),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProductDetailScreen(
-                                    productId: product.id,
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      )
-                    : GridView.builder(
-                        padding: EdgeInsets.all(8),
-                        itemCount: productProvider.products.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                        itemBuilder: (context, index) {
-                          final product = productProvider.products[index];
-                          return ProductCard(product: product);
-                        },
-                      ),
+            ? Center(child: Text(productProvider.errorMessage))
+            : _isSearching
+            ? ListView.builder(
+          padding: EdgeInsets.all(8),
+          itemCount: productProvider.products.length,
+          itemBuilder: (context, index) {
+            final product = productProvider.products[index];
+            return ListTile(
+              leading: Hero(
+                tag: product.id != null
+                    ? 'product_image_${product.id}'
+                    : 'product_image_placeholder',
+                child: product.images.isNotEmpty
+                    ? Image.network(
+                  product.images[0],
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                )
+                    : const Icon(Icons.image),
+              ),
+
+              title: Text(product.title),
+              subtitle: Text('\$${product.price}'),
+              // onTap: () {
+              //   Navigator.push(
+              //     context,
+              //     MaterialPageRoute(
+              //       builder: (context) => ProductDetailScreen(
+              //         productId: product.id,
+              //       ),
+              //     ),
+              //   );
+              // },
+              onTap: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    transitionDuration:
+                    const Duration(milliseconds: 600),
+                    pageBuilder: (context, animation,
+                        secondaryAnimation) =>
+                        ProductDetailScreen(
+                            productId: product.id),
+                    transitionsBuilder: (context, animation,
+                        secondaryAnimation, child) {
+                      return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(
+                              1.0, 0.0), // Start from right
+                          end: Offset.zero, // End at center
+                        ).animate(CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.easeInOut,
+                        )),
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              },
+            );
+          },
+        )
+            : GridView.builder(
+          padding: EdgeInsets.all(8),
+          itemCount: productProvider.products.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            mainAxisExtent: 250,
+          ),
+          itemBuilder: (context, index) {
+            final product = productProvider.products[index];
+            return ProductCard(
+              product: product,
+              heroTag: product.id != null
+                  ? 'product_image_${product.id}'
+                  : 'product_image_placeholder',
+            );
+          },
+        ),
       ),
     );
   }

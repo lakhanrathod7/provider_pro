@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task_1/provider/product_provider.dart';
 
+import 'screens/prodect_search_sceen.dart';
 import 'screens/product_list_screen.dart';
 import 'screens/product_detail_screen.dart';
 
@@ -36,6 +37,7 @@ void main() {
           '/details': (context) => ProductDetailScreen(
                 productId: ModalRoute.of(context)!.settings.arguments as int,
               ),
+          '/search': (context) => SearchScreen(),
         },
         onUnknownRoute: (settings) {
           return MaterialPageRoute(

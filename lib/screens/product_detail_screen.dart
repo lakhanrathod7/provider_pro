@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sliding_sheet2/sliding_sheet2.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import '../models/product_model.dart';
 import '../services/api_services.dart';
-import '../widgets/image_curousel.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
@@ -16,6 +15,7 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   late Future<Product> _product;
+  int _currentImageIndex = 0;
 
   @override
   void initState() {
@@ -36,88 +36,171 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Failed to load product details.\n${snapshot.error}',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _product =
-                            ApiService().fetchProductDetails(widget.productId);
-                      });
-                    },
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
+              child: Text('Error: ${snapshot.error}'),
             );
           } else if (!snapshot.hasData) {
             return const Center(child: Text('No product data found.'));
           }
 
           final product = snapshot.data!;
-          return SlidingSheet(
-            elevation: 8,
-            cornerRadius: 16,
-            snapSpec: const SnapSpec(
-              snap: true,
-              snappings: [0.4, 0.7, 1.0],
-              positioning: SnapPositioning.relativeToAvailableSpace,
-            ),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  ImageCarousel(images: product.images),
-                ],
-              ),
-            ),
-            builder: (context, state) {
-              return Container(
-                height: 500,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Carousel Slider for Images
+                if (product.images.isNotEmpty) ...[
+                  SizedBox(height: 20,),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      elevation: 1,
+
+                      child: CarouselSlider(
+                        items: product.images.map((imageUrl) {
+                          return ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(16),
+                            ),
+                            child: Image.network(
+                              imageUrl,
+                              height: 300,
+                              width: double.infinity,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.broken_image, size: 50),
+                            ),
+                          );
+                        }).toList(),
+                        options: CarouselOptions(
+                          height: 300,
+                          autoPlay: true,
+                          enlargeCenterPage: true,
+                          viewportFraction: 0.9,
+                          onPageChanged: (index, reason) {
+                            setState(() {
+                              _currentImageIndex = index;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Indicator Dots
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: product.images.asMap().entries.map((entry) {
+                        return GestureDetector(
+                          onTap: () => setState(() {
+                            _currentImageIndex = entry.key;
+                          }),
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _currentImageIndex == entry.key
+                                  ? Colors.blueAccent
+                                  : Colors.grey,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ] else
+                // Placeholder if no images
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(16),
+                    ),
+                    child: Image.network(
+                      'https://via.placeholder.com/150',
+                      height: 300,
+                      width: double.infinity,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+
+                const SizedBox(height: 35),
+
+                // Product Details Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    product.title ?? 'No Title',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+
+
+
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        product.title ?? 'No Title Available',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                          'Price: \$${product.price?.toStringAsFixed(2) ?? 'N/A'}',
+                          style: const TextStyle(fontSize: 20, color: Colors.green,fontWeight: FontWeight.w700),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '\$${product.price?.toStringAsFixed(2) ?? 'N/A'}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          color: Colors.green,
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Container(width: 100,
+                          decoration: BoxDecoration(
+                              color: Colors.yellow,
+                              borderRadius: BorderRadius.circular(20)
+                          ),
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: const Icon(Icons.star,
+                                    size: 18,
+                                    color: Colors
+                                        .amber),
+                              ), // Slightly bigger star icon
+                              const SizedBox(width: 4),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  product.rating.toStringAsFixed(1),
+                                  style: const TextStyle(
+                                    fontSize:
+                                    16, // Increased font size for rating
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Rating: ${product.rating?.toString() ?? 'No Rating'} ⭐',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        product.description ?? 'No Description Available',
-                        style: const TextStyle(fontSize: 16),
                       ),
                     ],
                   ),
                 ),
-              );
-            },
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    'Description: ${product.description ?? 'No Description'}',
+                    style: const TextStyle(
+                        fontSize: 18 ,color: Colors.black,wordSpacing: 2),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
