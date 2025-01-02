@@ -27,7 +27,7 @@ class ProductCard extends StatelessWidget {
                   const BorderRadius.vertical(top: Radius.circular(4)),
               child: Image.network(
                 product.images.first,
-                height: 170, // Increased image height
+                height: 150, // Increased image height
                 width: double.infinity,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) =>

@@ -6,6 +6,8 @@ import '../provider/product_provider.dart';
 import '../widgets/product_card.dart';
 
 class ProductListScreen extends StatefulWidget {
+  const ProductListScreen({super.key});
+
   @override
   _ProductListScreenState createState() => _ProductListScreenState();
 }
@@ -56,25 +58,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
-                          childAspectRatio: 0.75,
+                          mainAxisExtent: 250,
+                          //childAspectRatio: 0.75,
                     ),
                     itemBuilder: (context, index) {
                       final product = productProvider.products[index];
                       return GestureDetector(
                         onTap: () {
-                          if (product.id != null) {
-                            Navigator.pushNamed(
-                              context,
-                              '/details',
-                              arguments: product.id,
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Product ID is missing!'),
-                              ),
-                            );
-                          }
+                          Navigator.pushNamed(
+                            context,
+                            '/details',
+                            arguments: product.id,
+                          );
                         },
                         child: ProductCard(
                           product: product,
