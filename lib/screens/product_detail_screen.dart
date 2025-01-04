@@ -26,8 +26,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       appBar: AppBar(
-        title: const Text('Product Details'),
+        backgroundColor: Colors.deepPurple,
+        iconTheme: IconThemeData(color: Colors.white),
+        title: const Text('Product Details',style: TextStyle(color: Colors.white),),
       ),
       body: FutureBuilder<Product>(
         future: _product,
